@@ -1,0 +1,1 @@
+leaderboard_run(Leaderboards.Maze, "Maze_compete", 100000)

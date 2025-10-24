@@ -1,38 +1,18 @@
-n = get_world_size()
-
+# 基础功能函数 基础种植 干草 灌木
 def move_to(x, y):
-	n = get_world_size()
-	nowx = get_pos_x()
-	nowy = get_pos_y()
-	diffx = x - nowx
-	diffy = y - nowy
-	if diffx == 0 and diffy == 0:
-		return
-	if diffx != 0:
-		abs_diffx = abs(diffx)
-		if abs_diffx > n // 2:
-			if diffx >= 0:
-				diffx = abs_diffx - n
-			else:
-				diffx = n - abs_diffx
-	if diffy != 0:
-		abs_diffy = abs(diffy)
-		if abs_diffy > n // 2:
-			if diffy >= 0:
-				diffy = abs_diffy - n
-			else:
-				diffy = n - abs_diffy
-	if diffx > 0:
-		for _ in range(diffx):
+	dx = x - get_pos_x()
+	dy = y - get_pos_y()
+	while(dx):
+		dx = x - get_pos_x()
+		if(dx > 0):
 			move(East)
-	elif diffx < 0:
-		for _ in range(-diffx):
+		elif(dx < 0):
 			move(West)
-	if diffy > 0:
-		for _ in range(diffy):
+	while(dy):
+		dy = y - get_pos_y()
+		if(dy > 0):
 			move(North)
-	elif diffy < 0:
-		for _ in range(-diffy):
+		elif(dy < 0):
 			move(South)
 			
 def my_plant(item):
@@ -40,151 +20,167 @@ def my_plant(item):
 		harvest()
 	if get_ground_type() != Grounds.Soil:
 		till()
-	plant(item)
+		plant(item)
+	else:
+		plant(item)
 	if num_unlocked(Unlocks.Fertilizer) > 0:
 		if num_items(Items.Fertilizer) > 0:
-			use_item(Items.Fertilizer)
-			
-def all_plant_Hay_utill(num):
+			use_item(Items.Fertilizer) 
+
+def all_plant_Hay_until(num):
 	clear()
 	while num_items(Items.Hay) < num:
-		for i in range(n):
-			for j in range(n):
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
 				harvest()
 				move(North)
 			move(East)
-	
-def all_plant_Wood_utill(num):
+			
+def all_plant_Sunflower_until(num):
+	clear()
+	while num_items(Items.Power) < num:
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
+				my_plant(Entities.Sunflower)
+				move(North)
+			move(East)
+			
+def all_plant_Bush_until(num):
 	while num_items(Items.Wood) < num:
-		for i in range(n):
-			for j in range(n):
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
 				my_plant(Entities.Bush)
 				move(North)
 			move(East)
-			
-def all_plant_Carrot_utill(num):
+
+# 基础种植 胡萝卜 南瓜 仙人掌
+def all_plant_Carrot_until(num):
 	if num > num_items(Items.Hay):
-		all_plant_Hay_utill(num)
+		all_plant_Hay_until(num)
 	if num > num_items(Items.Wood):
-		all_plant_Wood_utill(num)
+		all_plant_Bush_until(num)
 	while num_items(Items.Carrot) < num:
-		for i in range(n):
-			for j in range(n):
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
 				my_plant(Entities.Carrot)
 				move(North)
 			move(East)
+			
 
-def all_plant_Pumpkin_utill(num):
+def all_plant_Pumpkin_until(num):
 	if num > num_items(Items.Carrot):
-		all_plant_Carrot_utill(num)
+		all_plant_Carrot_until(num)
 	while num_items(Items.Pumpkin) < num:
-		for i in range(n):
-			for j in range(n):
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
 				my_plant(Entities.Pumpkin)
 				move(North)
 			move(East)
-
-def all_plant_Cactus_utill(num):
+			
+def all_plant_Cactus_until(num):
 	if num > num_items(Items.Pumpkin):
-		all_plant_Pumpkin_utill(num)
+		all_plant_Pumpkin_until(num)
 	while num_items(Items.Cactus) < num:
-		for i in range(n):
-			for j in range(n):
-				my_plant(Entities.Pumpkin)
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
+				my_plant(Entities.Cactus)
 				move(North)
 			move(East)
 
-def moveDinosaur():
-	move_to(0,0)
-	change_hat(Hats.Dinosaur_Hat)
-	while True:
-		for i in range(n-1):
-			move(East)
-		move(North)
-		for i in range(n):
-			if i % 2 == 0:
-				for _ in range(n-2):
-					move(North)
-			else:
-				for _ in range(n-2):
-					move(South)
-			move(West)
-		flag = move(South)
-		if not flag:
-			change_hat(Hats.Wizard_Hat)
-			move_utils.move_to(0,0)
-			change_hat(Hats.Dinosaur_Hat)
+# 恐龙贪吃蛇
+def plant_Dinosaur():
+	if not can_move(East) and not can_move(West) and not can_move(South) and not can_move(North) :
+		change_hat(Hats.Gray_Hat)
 
-rights_of = {North:East, East:South, South:West, West:North}
-lefts_of = {North:West, West:South, South:East, East:North}
-opposites_of = {North:South, South:North, West:East, East:West}
-def moveMaze():
-	my_plant(Entities.Bush)
-	use_item(Items.Weird_Substance, n * 2 ** (num_unlocked(Unlocks.Mazes) - 1))
-	curr_position = (get_pos_x(), get_pos_y())
-	curr_direction = North
-	
+def def_Dinosaur():
+	oldbone = num_items(Items.Bone)
+	newbone = oldbone
+	change_hat(Hats.Gray_Hat)
+	while get_pos_y()>0:
+		move(North)
+	while get_pos_x()>0:
+		move(East)
+	change_hat(Hats.Dinosaur_Hat)
+	while newbone == oldbone:
+		while newbone == oldbone:
+			while get_pos_y()  <get_world_size()-1:
+				move(North)
+				plant_Dinosaur()
+				newbone = num_items(Items.Bone)
+			move(East)
+			plant_Dinosaur()
+			while get_pos_y()>1:
+				move(South)
+				plant_Dinosaur()
+			move(East)
+			plant_Dinosaur()
+			if get_pos_x()== get_world_size()-1 and get_pos_y()==1:
+				move(South)
+				plant_Dinosaur()
+				while get_pos_x()>0:
+					move(West)
+					plant_Dinosaur()
+
+# 迷宫
+dirs = [East, South, West, North]
+dirs_index = {East: 0, South: 1, West: 2, North: 3}
+def get_right_dir(dir):
+	return dirs[(dirs_index[dir] + 1) % 4]
+def get_left_dir(dir):
+	return dirs[(dirs_index[dir] - 1) % 4]
+def def_mazes():
+	# 生成迷宫
+	plant(Entities.Bush)
+	substance = get_world_size() * 2**(num_unlocked(Unlocks.Mazes) - 1)
+	use_item(Items.Weird_Substance, substance)
+	# 沿着墙走
+	dir = North
 	while True:
+		# 能往右走就往右
+		if can_move(get_right_dir(dir)):
+			dir = get_right_dir(dir)
+			move(dir)
+		else:
+			dir = get_left_dir(dir)
 		if get_entity_type() == Entities.Treasure:
 			harvest()
-			clear()
-			return
+			break
 		
-		right_direction = rights_of[curr_direction]
-		if can_move(right_direction):
-			move(right_direction)
-			curr_direction = right_direction
+# 主程序 逐步解锁
+while num_unlocked(Unlocks.Leaderboard) == 0:
+	
+	# 解锁树丛
+	while num_unlocked(Unlocks.Plant) == 0:
+		unlock(Unlocks.Grass)
+		unlock(Unlocks.Hats)
+		unlock(Unlocks.Speed)
+		unlock(Unlocks.Expand)
+		unlock(Unlocks.Plant)
+		all_plant_Hay_until(10000)
+		
+	# 解锁胡萝卜
+	while num_unlocked(Unlocks.Carrots) == 0:
+		unlock(Unlocks.Expand)
+		unlock(Unlocks.Speed)
+		unlock(Unlocks.Carrots)
+		all_plant_Bush_until(10000)
 			
-		elif can_move(curr_direction):
-			move(curr_direction)
+	all_plant_Hay_until(10000)
+	all_plant_Bush_until(10000)
+	# 解锁 肥料 浇水 树木
+	while num_unlocked(Unlocks.Trees) == 0:
+		unlock(Unlocks.Expand)
+		unlock(Unlocks.Speed)
+		unlock(Unlocks.Watering)
+		unlock(Unlocks.Trees)
+		for i in range(get_world_size()):
+			for j in range(get_world_size()):
+				my_plant(Entities.Carrot)
+				move(North)
+			move(East)
 			
-		else:
-			left_direction = lefts_of[curr_direction]
-			if can_move(left_direction):
-				move(left_direction)
-				curr_direction = left_direction
-			
-			else:
-				back_direction = opposites_of[curr_direction]
-				move(back_direction)
-				curr_direction = back_direction
-
-def main():
-	while num_unlocked(Unlocks.Leaderboard) == 0:
-
-		# 解锁树丛
-		while num_unlocked(Unlocks.Plant) == 0:
-			unlock(Unlocks.Grass)
-			unlock(Unlocks.Hats)
-			unlock(Unlocks.Speed)
-			unlock(Unlocks.Expand)
-			unlock(Unlocks.Plant)
-			all_plant_Hay_utill(10000)
-
-		# 解锁胡萝卜
-		while num_unlocked(Unlocks.Carrots) == 0:
-			unlock(Unlocks.Expand)
-			unlock(Unlocks.Speed)
-			unlock(Unlocks.Carrots)
-			all_plant_Wood_utill(10000)
-
-		all_plant_Hay_utill(10000)
-		all_plant_Wood_utill(10000)
-
-		# 解锁肥料浇水树木
-		while num_unlocked(Unlocks.Trees) == 0:
-			unlock(Unlocks.Expand)
-			unlock(Unlocks.Speed)
-			unlock(Unlocks.Watering)
-			unlock(Unlocks.Trees)
-			for i in range(n):
-				for j in range(n):
-					my_plant(Entities.Carrot)
-					move(North)
-				move(East)
-
-	all_plant_Hay_utill(50000)
-	all_plant_Wood_utill(50000)
+	all_plant_Hay_until(50000)
+	all_plant_Bush_until(50000)
 	# 解锁南瓜
 	while num_unlocked(Unlocks.Pumpkins) == 0:
 		unlock(Unlocks.Expand)
@@ -195,9 +191,10 @@ def main():
 		unlock(Unlocks.Trees)
 		unlock(Unlocks.Sunflowers)
 		unlock(Unlocks.Pumpkins)
-		all_plant_Carrot_utill(10000)
+		all_plant_Carrot_until(10000)
+		
 
-	# 解锁混合种植仙人掌
+	# 解锁 混合种植 仙人掌
 	while num_unlocked(Unlocks.Polyculture) == 0:
 		unlock(Unlocks.Grass)
 		unlock(Unlocks.Expand)
@@ -209,8 +206,8 @@ def main():
 		unlock(Unlocks.Pumpkins)
 		unlock(Unlocks.Cactus)
 		unlock(Unlocks.Polyculture)
-		all_plant_Pumpkin_utill(150000)
-
+		all_plant_Pumpkin_until(150000)
+		
 	# 解锁恐龙
 	while num_unlocked(Unlocks.Dinosaurs) == 0:
 		unlock(Unlocks.Grass)
@@ -226,14 +223,19 @@ def main():
 		unlock(Unlocks.Polyculture)
 		unlock(Unlocks.Dinosaurs)
 		unlock(Unlocks.Mazes)
-		all_plant_Cactus_utill(40000)
-
+		all_plant_Cactus_until(40000)
+	
+	# 走恐龙路径
 	while num_items(Items.Bone) < 2000000:
 		if num_items(Items.Cactus) < 20000:
-			all_plant_Cactus_utill(20000)
+			all_plant_Cactus_until(20000)
 		clear()
-		moveDinosaur()
-	
+		def_Dinosaur()
+		
+	# 解锁排行榜
 	while num_unlocked(Unlocks.Leaderboard) == 0:
 		unlock(Unlocks.Leaderboard)
-		moveMaze()
+		if num_items(Items.Power) < 1000:
+			all_plant_Sunflower_until(20000)
+		clear()
+		def_mazes()

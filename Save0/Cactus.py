@@ -8,7 +8,7 @@ def sort_col_single():
 		swapped = False
 		for j in range(n - 2, i - 1, -1):
 			move_utils.move_to(x, j)
-			if measure(North) > measure():
+			if measure(North) < measure():
 				swap(North)
 				swapped = True
 		if not swapped:
@@ -22,7 +22,7 @@ def sort_row_single():
 		swapped = False
 		for j in range(n - 2, i - 1, -1):
 			move_utils.move_to(j, y)
-			if measure(East) > measure():
+			if measure(East) < measure():
 				swap(East)
 				swapped = True
 		if not swapped:
@@ -35,6 +35,7 @@ def main():
 	move_utils.move_to(0, 0)
 	while True:
 		plant_utils.plantCactusFull()
+
 
 		drones = []
 		for i in range(n - 1):
